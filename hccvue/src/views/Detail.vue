@@ -124,7 +124,7 @@
     <div class="pnav">
       <van-goods-action>
         <van-goods-action-icon icon="chat-o" text="客服" color="#ee0a24" />
-        <van-goods-action-icon icon="cart-o" text="购物车"  />
+        <van-goods-action-icon icon="cart-o" text="购物车"  badge="5" to="/order"/>
         <van-goods-action-icon icon="star" text="已收藏" color="#ff5000" />
         <van-goods-action-button type="warning" text="加入购物车" @click="isShow"/>
         <van-goods-action-button type="danger" text="立即购买" @click="isShow"/>
@@ -138,7 +138,8 @@
 export default {
   data() {
     return {
-      username:'',
+      iintroduc:'',//商品介绍
+      username:'',//用户名
       product:[],//获取的商品信息
       show: false,
       sku: {
@@ -369,15 +370,35 @@ export default {
       console.log(buysum)
       
       //参数解构data中的数据
-      var {goodsId,selectedNum,selectedSkuComb}= this.skuData;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              console.log(goodsId,selectedNum,selectedSkuComb)
+      var {goodsId,selectedNum,selectedSkuComb}= this.skuData;                                                         console.log(goodsId,selectedNum,selectedSkuComb)
       //参数解构selectedSkuComb的变量
       var {id}=selectedSkuComb
 
 
     },
     // 点击加入购物车回调
-    onAddCartClicked(){
-      console.log('点击加入购物车')
+    onAddCartClicked(data){
+      console.log('点击加入购物车');
+     this.getUser()
+    
+    //  计算总价
+      var buysum= (data.selectedNum*data.selectedSkuComb.price)/100;
+      console.log(buysum)
+      
+      //参数解构data中的数据
+      var {goodsId,selectedNum,selectedSkuComb}= this.skuData;                                                                                                                          console.log(goodsId,selectedNum,selectedSkuComb)
+      //参数解构selectedSkuComb的变量
+      var {id}=selectedSkuComb;
+      
+
+      // 发送请求
+      this.axios.post('/cars/info',`user_id=${this.username}&product_id=${this.skuData.goodsId}&style=${this.skuData.selectedSkuComb.s2}&size=${this.skuData.selectedSkuComb.s1}&goodsprice=${buysum}&goodsSum=${selectedNum}&pimg=${this.goods. picture}&iintroduc=${this.iintroduc}`).then((res=>{
+        console.log("发送成功")
+        console.log(res)
+        this.show=false;
+      }))
+
+
 
     },
     // 发送请求获取商品规格
@@ -386,6 +407,7 @@ export default {
       console.log(product)
       this.axios.get('/products/pattern',{params:{product_id:product}}).then((res)=>{
         console.log(res.data.data[0])
+
         var {bsize,msize,pid,pproduct_id,ssize,styh,styo,styt}=res.data.data[0]
         this.sku.tree[1].v[0].name=styo;
         this.sku.tree[1].v[1].name=styh;
@@ -400,6 +422,8 @@ export default {
       this.axios('/products/detail',{params:{product_id:product}}).then((res)=>{
         console.log(res.data);
         this.product=res.data.data[0];
+        this.iintroduc=res.data.data[0].iintroduc;
+        // console.log(this.iintroduc)
         console.log(this.product)
             var{d_brind,d_familyclass,dclass,iid,iimg,iintroduc,ipostage,iprice,iprice_range,iseeding,istock,oldprice,oprice_range,product_id}=this.product
             this.goods.picture=iimg;
@@ -432,10 +456,6 @@ export default {
     this.detailAxios();
     this.patternAxios();
     // 获取用户名
-
-
-
-
   },
 
 

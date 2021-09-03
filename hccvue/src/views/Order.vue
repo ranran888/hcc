@@ -9,23 +9,22 @@
         checked-color="#ff6699"
       >
         <!-- 第一个卡片 -->
-        <div class="cards">
+        <div class="cards" v-for="(order,o) of order" :key="o">
           <div class="card-detail">
             <van-swipe-cell>
-              <van-checkbox name="1">
+              <van-checkbox :name="order.id">
                 <div class="product-card">
                   <van-card
-                    price="2.00"
-                    desc="描述信息"
-                    title="商品标题"
-                    thumb="https://img01.yzcdn.cn/vant/ipad.jpeg"
+                    :price="order.goodsprice"
+                    :title="order.iintroduc"
+                    :thumb="order.pimg"
                   >
                     <template #tags>
-                      <van-tag plain type="danger">标签</van-tag>
-                      <van-tag plain type="danger">标签</van-tag>
+                      <van-tag plain type="danger">样式:{{order.style}}</van-tag>
+                      <van-tag plain type="danger">尺码:{{order.size}}</van-tag>
                     </template>
                     <template #footer>
-                      <van-stepper v-model="value" integer />
+                      <van-stepper v-model="value.o" integer />
                     </template>
                   </van-card>
                 </div>
@@ -38,7 +37,7 @@
         </div>
 
         <!-- 第二张卡片 -->
-        <van-swipe-cell>
+        <!-- <van-swipe-cell>
           <van-card
             num="2"
             price="2.00"
@@ -55,7 +54,7 @@
               class="delete-button"
             />
           </template>
-        </van-swipe-cell>
+        </van-swipe-cell> -->
         <!-- <div class="cards">
           <div class="card-detail">
             <van-checkbox name="2">
@@ -90,18 +89,38 @@
 export default {
   data() {
     return {
-      value: 1, //步进器的值
+      order:[],//获取的数据库中所有的订单信息
+      value: [1,2], //步进器的值
       checked: false, //卡片头的选择框
       result: [], //卡片的复选框
       resultCard: [], //商品内容的复选框
     };
   },
   methods: {
+    // 发送请求获取订单详情信息
+    getOrder(){
+      this.axios.get('/cars/getinfo').then(
+        (res)=>{
+          // console.log(res.data.data[0].goodsprice)
+          this.order=res.data.data;
+          var a=res.data.data.data.goodsprice
+          console.log(typeof a)
+        }
+      )
+    },
+
     // 点击全选
     checkAll() {
       this.$refs.checkboxGroup.toggleAll();
     },
   },
+  mounted(){
+    this.getOrder();
+  }
+  
+
+
+
 };
 </script>
 <style lang="scss">

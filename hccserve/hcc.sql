@@ -520,6 +520,8 @@ create table orderr(
   style varchar(20),#样式        
   size  varchar(20), #尺码      
   goodsprice decimal(10,2), #商品单价
-  goodsSum   int    #商品购买数量        
+  goodsSum   int,    #商品购买数量 
+  pimg    varchar(128),  #商品图片 
+  iintroduc varchar(128) # 商品介绍     
 );
 

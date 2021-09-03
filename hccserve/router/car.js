@@ -45,6 +45,10 @@ r.post('/info',(req,res,next)=>{
     res.send({code: 406,msg: 'goodsSum不能为空'});
 	return;
   }
+  if(!obj.pimg){
+    res.send({code: 406,msg: '不能为空'});
+	return;
+  }
   
   //1.3执行SQL命令
   pool.query('insert into orderr set ?',[obj],(err,result)=>{

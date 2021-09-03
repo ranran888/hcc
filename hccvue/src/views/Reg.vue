@@ -79,6 +79,7 @@ export default {
        `lname=${values.lname}&lpwd=${values.lpwd}&lphone=${values.lphone}`
       ).then((res)=>{
         console.log(res.data)
+        this.$router.push('/logon')
       })
     },
     validator(val){
