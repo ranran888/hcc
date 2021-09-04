@@ -9,28 +9,44 @@
         checked-color="#ff6699"
       >
         <!-- 第一个卡片 -->
-        <div class="cards" v-for="(order,o) of order" :key="o">
+        <div class="cards" v-for="(order, o) of order" :key="o">
           <div class="card-detail">
-            <van-swipe-cell>
-              <van-checkbox :name="order.id">
+            <!-- 绑定自定义扩展属性data-i -->
+            <van-swipe-cell :before-close="beforeClose">
+              <van-checkbox :name="order.id" checked>
                 <div class="product-card">
                   <van-card
-                    :price="order.goodsprice"
+                    :price="
+                      value[o] == order.goodsSum
+                        ? order.goodsprice
+                        : value[o] * order.cost
+                    "
                     :title="order.iintroduc"
                     :thumb="order.pimg"
                   >
                     <template #tags>
-                      <van-tag plain type="danger">样式:{{order.style}}</van-tag>
-                      <van-tag plain type="danger">尺码:{{order.size}}</van-tag>
+                      <van-tag plain type="danger"
+                        >样式:{{ order.style }}</van-tag
+                      >
+                      <van-tag plain type="danger"
+                        >尺码:{{ order.size }}</van-tag
+                      >
                     </template>
                     <template #footer>
-                      <van-stepper v-model="value.o" integer />
+                      <div @click.stop>
+                        <van-stepper v-model="value[o]" integer/>
+                      </div>
                     </template>
                   </van-card>
                 </div>
               </van-checkbox>
               <template #right>
-                <van-button square type="danger" text="删除" />
+                <van-button
+                  square
+                  type="danger"
+                  text="删除"
+                  class="delete-button"
+                />
               </template>
             </van-swipe-cell>
           </div>
@@ -86,27 +102,54 @@
   </div>
 </template>
 <script>
+import { Dialog } from "vant";
 export default {
   data() {
     return {
-      order:[],//获取的数据库中所有的订单信息
-      value: [1,2], //步进器的值
+      order: [], //获取的数据库中所有的订单信息
+      value: [], //步进器的值
       checked: false, //卡片头的选择框
       result: [], //卡片的复选框
       resultCard: [], //商品内容的复选框
     };
   },
   methods: {
+    // 删除数据
+    // position 为关闭时点击的位置
+    // instance 为对应的 SwipeCell 实例
+    beforeClose({ position, instance }) {
+      switch (position) {
+        case "left":
+        case "Checkbox":
+        case "outside":
+          instance.close();
+          break;
+        case "right":
+          Dialog.confirm({
+            message: "确定删除改商品吗？",
+          })
+            .then(() => {
+              // instance.close();
+              
+              console.log("确定");
+            })
+            .catch(() => {
+              // on cancel
+            });
+          break;
+      }
+    },
+
     // 发送请求获取订单详情信息
-    getOrder(){
-      this.axios.get('/cars/getinfo').then(
-        (res)=>{
-          // console.log(res.data.data[0].goodsprice)
-          this.order=res.data.data;
-          var a=res.data.data.data.goodsprice
-          console.log(typeof a)
+    getOrder() {
+      this.axios.get("/cars/getinfo").then((res) => {
+        console.log(res.data.data);
+        this.order = res.data.data;
+        // 遍历得到的数据，把每个商品购买的数量push到value中
+        for (var key of res.data.data) {
+          this.value.push(key.goodsSum);
         }
-      )
+      });
     },
 
     // 点击全选
@@ -114,16 +157,21 @@ export default {
       this.$refs.checkboxGroup.toggleAll();
     },
   },
-  mounted(){
+  mounted() {
     this.getOrder();
-  }
-  
-
-
-
+  },
 };
 </script>
 <style lang="scss">
+.goods-card {
+  margin: 0;
+  // background-color: @white;
+}
+
+.delete-button {
+  height: 100%;
+}
+
 .order {
   // 订单界面
   .frame {

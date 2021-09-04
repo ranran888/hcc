@@ -275,7 +275,37 @@ r.get('/search', (req, res, next) => {
   });
 });
 
+//4分页查询商品信息表 (get /details)
+////http://127.0.0.1:6060/products/page
+r.get('/page', (req, res, next) => {
+  //4.1获取传递的参数
+  let page = req.query.page;
+  // var count=(page-1)*6;
+  console.log(page);
+  //4.2执行SQL语句
+  pool.query('select * from details limit ?,6',[(page-1)*6] ,(err, result) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    //结果是数组，如果是空数组说明该用户不存在，否则查找成功
+    if (result.length === 0) {
+      res.send({
+        code: 201,
+        msg: '未查询到商品信息'
+      });
+    } else {
+      res.send({
+        code: 200,
+        msg: '查询成功',
+        data: result
+      });
+    }
 
+    console.log(result);
+
+  });
+});
 
 
 module.exports = r;

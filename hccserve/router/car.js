@@ -41,6 +41,10 @@ r.post('/info',(req,res,next)=>{
     res.send({code: 405,msg: 'goodsprice不能为空'});
 	return;
   }
+  if(!obj.cost){
+    res.send({code: 407,msg: 'cost不能为空'});
+	return;
+  }
   if(!obj.goodsSum){
     res.send({code: 406,msg: 'goodsSum不能为空'});
 	return;

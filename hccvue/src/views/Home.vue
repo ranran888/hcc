@@ -49,10 +49,10 @@
       </div>
       <!-- 图片 -->
       <ul class="content">
-        <li v-for="(group,g) of group" :key="g">
+        <li v-for="(group, g) of group" :key="g">
           <router-link :to="`/detail?product_id=${group.product_id}`">
             <img :src="group.iimg" alt="" />
-            <p>￥{{group.iprice}}</p>
+            <p>￥{{ group.iprice }}</p>
           </router-link>
         </li>
       </ul>
@@ -80,18 +80,16 @@
       </div>
       <!-- 图片 -->
       <div class="k">
-         <ul class="content">
-        <li v-for="(iflash,i) of iflashbuy" :key="i">
-          <router-link :to="`/detail?product_id=${iflash.product_id}`">
-            <img :src="iflash.iimg" alt="" />
-            <p>￥{{iflash.iprice}}</p>
-            <p>￥{{iflash.oldprice}}</p>
-          </router-link>
-        </li>
-       
-      </ul>
+        <ul class="content">
+          <li v-for="(iflash, i) of iflashbuy" :key="i">
+            <router-link :to="`/detail?product_id=${iflash.product_id}`">
+              <img :src="iflash.iimg" alt="" />
+              <p>￥{{ iflash.iprice }}</p>
+              <p>￥{{ iflash.oldprice }}</p>
+            </router-link>
+          </li>
+        </ul>
       </div>
-     
     </div>
     <!-- 初秋 -->
     <div class="autumn">
@@ -99,10 +97,10 @@
       <!-- 横拉框 -->
       <div class="kuang">
         <div class="nei">
-          <div class="one" v-for="(autumn,a) of autumn" :key="a">
+          <div class="one" v-for="(autumn, a) of autumn" :key="a">
             <router-link :to="`/detail?product_id=${autumn.product_id}`">
               <img :src="autumn.iimg" alt="" />
-            <p>￥{{autumn.iprice}}</p>
+              <p>￥{{ autumn.iprice }}</p>
             </router-link>
           </div>
         </div>
@@ -117,20 +115,35 @@
     <!-- 商品成列 -->
     <div class="ondisplay">
       <!-- 一个商品 -->
-      <div v-for="(detail,d) of details" :key="d">
-        <router-link :to="`/detail?product_id=${detail.product_id}`">
-          <img :src="detail.iimg" alt="" />
-        <p class="title">
-          {{detail.iintroduc}}
-        </p>
-        <p class="type">重回汉唐汉服店</p>
-        <p class="price">
-          <strong>￥{{detail.iprice}}</strong>
-          <span>{{detail.iseeding}}人种草</span>
-        </p>
-        </router-link>
-      </div>
+      <!-- list列表触底加载 -->
       
+        <van-list
+          v-model="loading"
+          :finished="finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+        >
+
+      <div class="ss" v-for="(detail, d) of details" :key="d">
+
+
+          <router-link :to="`/detail?product_id=${detail.product_id}`">
+            <img :src="detail.iimg" alt="" />
+            <p class="title">
+              {{ detail.iintroduc }}
+            </p>
+            <p class="type">重回汉唐汉服店</p>
+            <p class="price">
+              <strong>￥{{ detail.iprice }}</strong>
+              <span>{{ detail.iseeding }}人种草</span>
+            </p>
+          </router-link>
+          
+
+      </div>
+</van-list>
+
+
     </div>
   </div>
 </template>
@@ -139,20 +152,23 @@
 export default {
   data() {
     return {
+      page: 1,
+      loading: false,
+      finished: false, //触底加载
       value: "",
       time: 100 * 60 * 60 * 1000, //倒计时
       nav: [],
       banner: [], //轮播图
-      details:[],//商品列表
-      iflashbuy:[],//获取闪购的商品数据
-      group:[],//获取拼团的商品数据
-      autumn:[],//获取初秋的商品数据
+      details: [], //商品列表
+      iflashbuy: [], //获取闪购的商品数据
+      group: [], //获取拼团的商品数据
+      autumn: [], //获取初秋的商品数据
     };
   },
   methods: {
     onSearch(val) {
       // alert(val);
-      this.$router.push(`/search?kw=${val}`)
+      this.$router.push(`/search?kw=${val}`);
     },
     // 查询导航分类
     navAxios() {
@@ -161,6 +177,31 @@ export default {
         console.log(res.data.data);
       });
     },
+
+    onLoad() {
+      // 异步更新数据
+      // setTimeout 仅做示例，真实场景中一般为 ajax 请求
+
+      setTimeout(() => {
+        this.page++;
+
+        this.axios
+          .get("/products/page", { params: { page: this.page } })
+          .then((res) => {
+            this.details.push(...res.data.data);
+            console.log(res.data.data);
+          });
+
+        // 加载状态结束
+        this.loading = false;
+
+        // 数据全部加载完成
+        if (this.details.length >= 142) {
+          this.finished = true;
+        }
+      }, 1000);
+    },
+
     // 发送请求查找轮播图
     bannerAxios() {
       this.axios.get("/carousel/banner").then((res) => {
@@ -169,47 +210,50 @@ export default {
       });
     },
     // 发送请求查询商品信息
-    productAxios(){
-       this.axios.get("/products/details").then((res) => {
+    // productAxios(){
+    //    this.axios.get("/products/details").then((res) => {
+    //     this.details = res.data.data;
+    //     console.log(res.data.data);
+    //   });
+
+    // },
+    pageAxios() {
+      this.axios.get("/products/page", { params: { page: 1 } }).then((res) => {
         this.details = res.data.data;
         console.log(res.data.data);
       });
-      
     },
     // 发送请求通过导航分类查找响应商品
-    dclassAxios(dclass){
-      return new Promise ((resolve,reject)=>{
-        this.axios.get("/products/nav_class?dclass="+dclass).then((res) => {
-        // this.details_dclass = res.data.data;
-        resolve(res.data.data)
-        console.log(res.data.data);
+    dclassAxios(dclass) {
+      return new Promise((resolve, reject) => {
+        this.axios.get("/products/nav_class?dclass=" + dclass).then((res) => {
+          // this.details_dclass = res.data.data;
+          resolve(res.data.data);
+          console.log(res.data.data);
         });
-      })
+      });
     },
-
-
   },
   mounted() {
     this.navAxios();
     this.bannerAxios();
-    this.productAxios();
+    // this.productAxios();
+    // this.pageAxios();
     // 获取拼团的商品数据
-    this.dclassAxios(200).then((group)=>{
+    this.dclassAxios(200).then((group) => {
       console.log(group);
-      this.group=group;
+      this.group = group;
     });
     // 获取闪购的商品数据
-    this.dclassAxios(100).then((iflashbuy)=>{
+    this.dclassAxios(100).then((iflashbuy) => {
       console.log(iflashbuy);
-      this.iflashbuy=iflashbuy;
+      this.iflashbuy = iflashbuy;
     });
     // 获取初秋的商品数据
-    this.dclassAxios(300).then((autumn)=>{
+    this.dclassAxios(300).then((autumn) => {
       console.log(autumn);
-      this.autumn=autumn;
+      this.autumn = autumn;
     });
-
-
   },
 };
 </script>
@@ -370,25 +414,24 @@ export default {
         // line-height: 6vh;
         margin-left: 2vw;
         // padding-top: 1vh;
-        .van-count-down{
+        .van-count-down {
           padding-top: 1.6vh;
           .colon {
-          display: inline-block;
-          margin: 0 4px;
-          color: #ff6699;
-          font-weight: 700;
+            display: inline-block;
+            margin: 0 4px;
+            color: #ff6699;
+            font-weight: 700;
+          }
+          .block {
+            display: inline-block;
+            width: 22px;
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+            background-color: #ff6699;
+            border-radius: 1.5vw;
+          }
         }
-        .block {
-          display: inline-block;
-          width: 22px;
-          color: #fff;
-          font-size: 12px;
-          text-align: center;
-          background-color: #ff6699;
-          border-radius: 1.5vw;
-        }
-        }
-        
       }
       a {
         color: #999;
@@ -404,7 +447,7 @@ export default {
       }
     }
     // 图片
-    .k{
+    .k {
       width: 92vw;
       // height: 19vh;
       // background-color: #ff6699;
@@ -412,37 +455,36 @@ export default {
       overflow: auto;
       .content {
         height: 20vh;
-      width:213vw;
-      margin: 0 4vw;
-      overflow: hidden;
-      display: flex;
-      justify-content: space-between;
-      li {
-        margin-top: 0;
-        float: left;
-        // margin-right: 0.1vw;
-        img {
-          width: 19.5vw;
-          height: 12vh;
-          // background-color: wheat;
-          border-radius: 1.5vw;
-        }
-        p {
-          color: #ff6699;
-          font-size: 0.8em;
-          margin-top: 1vh;
-          font-weight: 600;
-        }
-        p:nth-child(3){
-          font-size: 0.6rem;
-          color:#999;
-          margin:0;
-          text-decoration: line-through;
+        width: 213vw;
+        margin: 0 4vw;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        li {
+          margin-top: 0;
+          float: left;
+          // margin-right: 0.1vw;
+          img {
+            width: 19.5vw;
+            height: 12vh;
+            // background-color: wheat;
+            border-radius: 1.5vw;
+          }
+          p {
+            color: #ff6699;
+            font-size: 0.8em;
+            margin-top: 1vh;
+            font-weight: 600;
+          }
+          p:nth-child(3) {
+            font-size: 0.6rem;
+            color: #999;
+            margin: 0;
+            text-decoration: line-through;
+          }
         }
       }
     }
-    }
-    
   }
   // 初秋
   .autumn {
@@ -510,11 +552,13 @@ export default {
     width: 92vw;
     margin: 0 auto 2vw;
     // background-color: aqua;
-    display: flex;
+    .van-list{
+      display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    // 一个商品
-    > div {
+     // 一个商品
+    .ss {
+      
       background-color: white;
       width: 45vw;
       border-radius: 1vw;
@@ -560,6 +604,9 @@ export default {
         }
       }
     }
+    }
+    
+   
   }
 }
 </style>
