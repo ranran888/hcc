@@ -3,7 +3,7 @@
     <!-- 页头 -->
     <div class="myheader">
       <!-- 登录 -->
-      <router-link to="/logon">
+      <router-link to="/me">
         <div class="log"></div>
       </router-link>
       <!-- 搜索框 -->
@@ -16,9 +16,9 @@
         background="#f4f4f4"
       />
       <!-- 购物车 -->
-      <router-link to="/order">
-        <div class="car"></div>
-      </router-link>
+     
+        <div class="car" @click="cars"></div>
+     
     </div>
     <!-- 轮播图 -->
     <div class="canousel">
@@ -166,6 +166,16 @@ export default {
     };
   },
   methods: {
+    // 点击购物车判断是否登陆
+    cars(){
+      if(!sessionStorage.getItem('name')){
+      // 如果获取的是空则跳转到登录页面
+      this.$router.push('/logon');
+    }else{
+      this.$router.push('/order')
+    }
+    },
+
     onSearch(val) {
       // alert(val);
       this.$router.push(`/search?kw=${val}`);

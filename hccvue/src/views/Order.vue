@@ -5,7 +5,7 @@
       <ul id="ul" @click="del">
         <li v-for="(order,o) of order" :key="o">
           <!-- 左边选择框 -->
-          <button></button>
+          <input type="checkbox" id="input" v-model="order.ischeck">
           <!-- 右边 -->
           <div class="right">
             <!-- 图片 -->
@@ -13,11 +13,11 @@
             <!-- 商品详情 -->
             <div class="pdetail">
                <p class="title">{{order.iintroduc}}</p>
-               <p class="price">￥{{order.goodsprice}}</p>
+               <p class="price">￥{{order.goodsSum*order.cost}}</p>
                <div class="btn">
-                 <button >-</button>
-                 <input type="text" v-model="value[o]">
-                 <button>+</button>
+                 <button :data-i="o" :data-n="-1">-</button>
+                 <input type="text" v-model="order.goodsSum">
+                 <button  :data-i="o" :data-n="+1">+</button>
                </div>
                
             </div> 
@@ -30,12 +30,12 @@
     <!--底部提交订单栏  -->
     <div class="floor">
       <van-submit-bar :price="total" button-text="提交订单">
-        <van-checkbox
+        <!-- <van-checkbox
           v-model="checked"
           checked-color="#ff6699"
           @click="checkAll"
           >全选</van-checkbox
-        >
+        > -->
       </van-submit-bar>
     </div>
   </div>
@@ -47,7 +47,7 @@ export default {
     return {
 
       order: [], //获取的数据库中所有的订单信息
-      value: [], //步进器的值
+      // value: [], //步进器的值
       checked: false, //卡片头的选择框
       result: [], //卡片的复选框
       resultCard: [], //商品内容的复选框
@@ -55,15 +55,31 @@ export default {
   },
   methods: {
 
+    // change(n,o){
+    //   this.order[o].goodsSum+=n;
+    //   // console.log(this.order[o].goodsSum)
+    //   if(this.order[o].goodsSum==0){
+    //     this.order.splice(o,1)
+    //   }
+    // },
+
     // 删除数据
     del(e){
       // var ul=document.getElementById("ul");
       // var del=ul.querySelectorAll("li>.del")
       console.log(e)
-      if(e.target.button.innerHTML=='X'){
+      if(e.target.nodeName=="BUTTON"){
         var o=e.target.dataset.i;
-        console.log(o)
-        this.order.splice(o,1);
+        if(e.target.innerHTML=="x"){
+
+           this.order.splice(o,1)
+        }else{
+          this.order[o].goodsSum+=parseInt(e.target.dataset.n);
+          // console.log(this.value)
+          if(this.order[o].goodsSum==0){
+            this.order.splice(o,1)
+          }
+        }
       }
     },
 
@@ -98,9 +114,10 @@ export default {
         console.log(res.data.data);
         this.order = res.data.data;
         // 遍历得到的数据，把每个商品购买的数量push到value中
-        for (var key of res.data.data) {
-          this.value.push(key.goodsSum);
-        }
+        // for (var key of res.data.data) {
+        //   this.value.push(key.goodsSum);
+        //   console.log(this.value)
+        // }
       });
     },
 
@@ -116,9 +133,11 @@ export default {
     // 计算总和
     total(){
       var total=0;
+      
       for(var p of this.order){
+        if(p.ischeck){
         total+=p.goodsSum*p.cost*100
-    
+        }
       }
       return total;
     }
@@ -129,6 +148,7 @@ export default {
 .order {
   // 订单界面
   .frame {
+    margin-bottom: 9vh;
     ul{
       li{
         margin-bottom: 2vh;
@@ -137,24 +157,25 @@ export default {
         align-items: center;
         height: 19vh;
         background-color:white ;
-        button{
+        #input{
           width:5vw;
           height: 2.6vh;
           border-radius: 50%;
           border:1px solid #555;
+          border:none;
           margin-left: 2vw;
         }
         .right{
           margin-left: 2vw;
           width:81vw;
           height:15vh ;
-          background-color: lightcoral;
+          // background-color: lightcoral;
           display: flex;
           justify-content: space-between;
           img{
             width: 20vw;
             height: 13wh;
-            background-color: lightgreen;
+            // background-color: lightgreen;
            
           }
           .pdetail{

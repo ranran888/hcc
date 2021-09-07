@@ -17,7 +17,7 @@
         />
         <van-field
           v-model="password"
-          type="密码"
+          type="password"
           name="lpwd"
           label="密码"
           placeholder="密码"
@@ -47,6 +47,7 @@
   </div>
 </template>
 <script>
+import { Toast } from 'vant';
 export default {
   data() {
     return {
@@ -63,14 +64,14 @@ export default {
       ).then((res)=>{
         console.log(res.data);
           if(res.data.code==200){//登录成功
-            alert("登录成功");
+            Toast('登陆成功');
             this.$store.commit('loginOk',this.username);
             //把islogin和name存入sessionStorage
             sessionStorage.setItem('islogin',true);
             sessionStorage.setItem('name',this.username);
             this.$router.push('/'); 
           }else if(res.data.code==201){//登录失败
-           alert("账号或密码错误");
+           Toast('账号或密码错误');
           }
       })
     },

@@ -523,6 +523,7 @@ create table orderr(
   cost       decimal(10,2), #商品单价
   goodsSum   int,           #商品购买数量 
   pimg    varchar(128),     #商品图片 
-  iintroduc varchar(128)    #商品介绍     
+  iintroduc varchar(128),    #商品介绍 
+  ischeck  bool              #商品是否选中             
 );
 

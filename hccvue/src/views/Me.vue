@@ -4,12 +4,12 @@
     <div class="islog" v-if="$store.state.islogin">
       <img src="/img/me/icon1.jpg_100x100.jpg" alt="" />
       <span>{{$store.state.name}}</span>
-      <router-link to=""><span></span></router-link>
+      <span @click="close" style="margin-left:3vw;font-size:0.9em">退出登陆</span>
     </div>
      <!-- 未登录（默认） -->
     <div class="islog" v-else>
       <img src="/img/me/icon1.jpg_100x100.jpg" alt="" />
-      <router-link to=""> <span>请点击登录</span></router-link>
+      <router-link to="/logon"> <span>请点击登录</span></router-link>
     </div>
     <!-- 单元格我的订单 -->
     <div class="myorder">
@@ -93,13 +93,23 @@
   </div>
 </template>
 <script>
+
 export default {
+  
   data(){
     return{
      summary:[]
     }
   },
   methods:{
+     close(){
+      sessionStorage.setItem('islogin','');
+      sessionStorage.setItem('name','');
+      // console.log(this.$store.state.islogin);
+      this.$router.go(0);
+      // this.$router.go(-1);
+      // this.$router.push('/');
+    },
      // 发送请求通过导航分类查找响应商品
     dclassAxios(dclass){
       return new Promise ((resolve,reject)=>{

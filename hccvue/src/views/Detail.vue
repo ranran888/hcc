@@ -392,7 +392,7 @@ export default {
       
 
       // 发送请求
-      this.axios.post('/cars/info',`user_id=${this.username}&product_id=${this.skuData.goodsId}&style=${this.skuData.selectedSkuComb.s2}&size=${this.skuData.selectedSkuComb.s1}&goodsprice=${buysum}&cost=${(data.selectedSkuComb.price)/100}&goodsSum=${selectedNum}&pimg=${this.goods. picture}&iintroduc=${this.iintroduc}`).then((res=>{
+      this.axios.post('/cars/info',`user_id=${this.username}&product_id=${this.skuData.goodsId}&style=${this.skuData.selectedSkuComb.s2}&size=${this.skuData.selectedSkuComb.s1}&goodsprice=${buysum}&cost=${(data.selectedSkuComb.price)/100}&goodsSum=${selectedNum}&pimg=${this.goods. picture}&iintroduc=${this.iintroduc}&ischeck=${false}`).then((res=>{
         console.log("发送成功")
         console.log(res)
         this.show=false;
