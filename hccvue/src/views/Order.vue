@@ -1,7 +1,11 @@
 <template>
   <div class="order">
     <!-- 订单界面 -->
-    <div class="frame">
+    <div class="frame" style="position:relative">
+      <div class="ic" style="position:absolute;
+       z-index:1000;top:0;left:0;width:10vw;height:5vh;">
+        <van-icon name="arrow-left" color="#8888" size="1.7rem" @click="push"/>
+      </div>
       <ul id="ul" @click="del">
         <li v-for="(order,o) of order" :key="o">
           <!-- 左边选择框 -->
@@ -13,17 +17,17 @@
             <!-- 商品详情 -->
             <div class="pdetail">
                <p class="title">{{order.iintroduc}}</p>
-               <p class="price">￥{{order.goodsSum*order.cost}}</p>
+               <p class="price">￥{{(order.goodsSum*order.cost).toFixed(2)}}</p>
                <div class="btn">
-                 <button :data-i="o" :data-n="-1">-</button>
+                 <button :data-o="o" :data-n="-1">-</button>
                  <input type="text" v-model="order.goodsSum">
-                 <button  :data-i="o" :data-n="+1">+</button>
+                 <button  :data-o="o" :data-n="+1">+</button>
                </div>
                
             </div> 
           </div>
           <!-- 删除图标 -->
-          <button class="del" :data-i="o">x</button>
+          <button class="del" :data-i="order.id" :data-o="o">x</button>
         </li>
       </ul>
     </div>
@@ -45,7 +49,6 @@ import { Dialog } from "vant";
 export default {
   data() {
     return {
-
       order: [], //获取的数据库中所有的订单信息
       // value: [], //步进器的值
       checked: false, //卡片头的选择框
@@ -54,7 +57,12 @@ export default {
     };
   },
   methods: {
-
+    push(){
+      
+        history.go(-1)
+      
+    
+   },
     // change(n,o){
     //   this.order[o].goodsSum+=n;
     //   // console.log(this.order[o].goodsSum)
@@ -69,11 +77,19 @@ export default {
       // var del=ul.querySelectorAll("li>.del")
       console.log(e)
       if(e.target.nodeName=="BUTTON"){
-        var o=e.target.dataset.i;
+        var i=e.target.dataset.i;
+        var o=e.target.dataset.o;
+        console.log(i)
         if(e.target.innerHTML=="x"){
-
            this.order.splice(o,1)
+        this.axios.get('/cars/del',{params:{id:i}}).then((res)=>{
+          console.log(res)
+
+        })  
+      
         }else{
+          var o=e.target.dataset.o;
+          console.log(o)
           this.order[o].goodsSum+=parseInt(e.target.dataset.n);
           // console.log(this.value)
           if(this.order[o].goodsSum==0){
@@ -113,6 +129,13 @@ export default {
       this.axios.get("/cars/getinfo").then((res) => {
         console.log(res.data.data);
         this.order = res.data.data;
+        console.log(this.order)
+        // var count=0
+        // for (var i=0;i<this.order.length;i++){
+        //   count+=1;
+        // }
+        // console.log(count)
+        // this.count=count
         // 遍历得到的数据，把每个商品购买的数量push到value中
         // for (var key of res.data.data) {
         //   this.value.push(key.goodsSum);

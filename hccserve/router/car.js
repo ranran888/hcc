@@ -90,6 +90,28 @@ r.get('/getinfo',(req,res,next)=>{
   });
 });
 
+//3.删除购物车信息（delete  /编号）
+//http://127.0.0.1:6060/cars/del
+r.get('/del',(req,res,next)=>{
+  //5.1获取传递的参数（路由传参）
+  let obj = req.query.id;
+  console.log(obj);
+  //5.2执行SQL语句
+  pool.query('delete from orderr where id=?',[obj],(err,result)=>{
+     if(err){
+     next(err);
+     return;
+   }
+   console.log(result);
+   //结果是一个对象，如果对象下的affectedRows为0说明产出失败
+   if(result.affectedRows===0){
+      res.send({code:201,msg:'删除失败'});
+   }else{
+      res.send({code:200,msg:'删除成功'}); 
+   }
+  });   
+});
+
 
 
 //导出路由器对象

@@ -1,7 +1,13 @@
 <template>
   <div class="detail">
+   
     <!-- 大图轮播-->
-    <div class="limg">
+    <div class="limg" style="position:relative"> 
+      <div class="ic" style="position:absolute;
+       z-index:1000;top:0;left:0;width:10vw;height:5vh;">
+        <van-icon name="arrow-left" color="#8888" size="1.7rem" @click="push"/>
+      </div>
+      
       <van-swipe
         class="my-swipe"
         :autoplay="3000"
@@ -124,7 +130,7 @@
     <div class="pnav">
       <van-goods-action>
         <van-goods-action-icon icon="chat-o" text="客服" color="#ee0a24" />
-        <van-goods-action-icon icon="cart-o" text="购物车"  badge="5" to="/order"/>
+        <van-goods-action-icon icon="cart-o" text="购物车"  :badge="$store.state.count" to="/order"/>
         <van-goods-action-icon icon="star" text="已收藏" color="#ff5000" />
         <van-goods-action-button type="warning" text="加入购物车" @click="isShow"/>
         <van-goods-action-button type="danger" text="立即购买" @click="isShow"/>
@@ -138,6 +144,11 @@
 export default {
   data() {
     return {
+      order:[],
+      obj:{
+        
+      },
+      count:0,
       iintroduc:'',//商品介绍
       username:'',//用户名
       product:[],//获取的商品信息
@@ -327,6 +338,13 @@ export default {
   
 
   methods: {
+  // 点击购物车图标是否出现购物车列表
+  
+
+  //  返回
+  push(){
+    history.go(-1)
+  },
   //  获取用户名
   getUser(){
     if(!sessionStorage.getItem('name')){
@@ -370,16 +388,34 @@ export default {
       console.log(buysum)
       
       //参数解构data中的数据
-      var {goodsId,selectedNum,selectedSkuComb}= this.skuData;                                                         console.log(goodsId,selectedNum,selectedSkuComb)
+      var {goodsId,selectedNum,selectedSkuComb}= this.skuData;                                                        
+     console.log(goodsId,selectedNum,selectedSkuComb)
       //参数解构selectedSkuComb的变量
       var {id}=selectedSkuComb
 
 
     },
+    Axios(){
+        this.axios.get("/cars/getinfo").then((res) => {
+        console.log(res.data.data);
+         this.order = res.data.data;
+        var count=0
+        for (var i=0;i<this.order.length;i++){
+          count+=1;
+        }
+         console.log(count)
+        // this.count=count
+         this.$store.commit('Axios',count);
+     
+      });
+    },
     // 点击加入购物车回调
     onAddCartClicked(data){
-      console.log('点击加入购物车');
+      if(!sessionStorage.getItem('name')){
+              console.log('点击加入购物车');
      this.getUser()
+    //  获取购物车详情有多少数据
+     this.Axios();
     
     //  计算总价
       var buysum= (data.selectedNum*data.selectedSkuComb.price)/100;
@@ -397,6 +433,10 @@ export default {
         console.log(res)
         this.show=false;
       }))
+      }else{
+        this.$router.push('/logon')
+      }
+
 
 
 
@@ -440,13 +480,17 @@ export default {
 
     // 点击是否显示商品样式
     isShow() {
-      this.show = true;
+        this.show = true;      
     },
     onClickIcon() {
       // Toast("点击图标");
-      this.show = true;
-   
-    },
+    if(!sessionStorage.getItem('name')){
+      this.$router.push('/order')
+       this.show = true;
+    }else{
+      this.$router.push('/logon')
+    }
+  },
     onClickButton() {
       Toast("点击按钮");
       this.show = true;
@@ -455,9 +499,19 @@ export default {
   mounted(){
     this.detailAxios();
     this.patternAxios();
+    this.Axios();
     // 获取用户名
   },
-
+  watch:{
+    count(){
+      //  var count=0
+      //   for (var i=0;i<this.order.length;i++){
+      //     if(this.order.length!=0){ count+=1;} 
+      //   }
+       this.count=this.order.length;
+       immediate:true;
+    }
+  }
 
 
 };
@@ -465,6 +519,7 @@ export default {
 <style lang="scss">
 .detail {
   background-color: #f4f4f4;
+  
   // 大图
   .limg {
     .van-swipe__track {
